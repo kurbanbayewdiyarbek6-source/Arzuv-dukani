@@ -1,542 +1,69 @@
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const AzMarket());
+void main() => runApp(const AzMarketApp());
+
+const purple = Color(0xFF673AB7);
+final AudioPlayer _soundPlayer = AudioPlayer();
+Future<void> playSound(String file) async {
+  try { await _soundPlayer.stop(); await _soundPlayer.play(AssetSource('sounds/$file.wav')); } catch (_) {}
 }
 
-class AzMarket extends StatelessWidget {
-  const AzMarket({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Az Market',
-      theme: ThemeData(
-        colorSchemeSeed: Colors.deepPurple,
-        useMaterial3: true,
-      ),
-      home: const SplashPage(),
-    );
+class AzMarketApp extends StatefulWidget {
+  const AzMarketApp({super.key});
+  @override State<AzMarketApp> createState() => AzMarketAppState();
+}
+class AzMarketAppState extends State<AzMarketApp> {
+  bool dark = false;
+  String customerName = '', phone = '', address = '', region = 'Aşgabat', district = '';
+  @override void initState() { super.initState(); _load(); }
+  Future<void> _load() async {
+    final p = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() { dark=p.getBool('dark')??false; customerName=p.getString('name')??''; phone=p.getString('phone')??''; address=p.getString('address')??''; region=p.getString('region')??'Aşgabat'; district=p.getString('district')??''; });
   }
-}
-
-void clickSound() {
-  SystemSound.play(SystemSoundType.click);
-}
-
-class Product {
-  final String name;
-  final int price;
-  final String image;
-
-  Product(this.name, this.price, this.image);
-}
-
-final products = [
-  Product('Alma', 20,
-      'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=500'),
-  Product('Pomidor', 15,
-      'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=500'),
-  Product('Kartoşka', 10,
-      'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=500'),
-  Product('Sogan', 12,
-      'https://images.unsplash.com/photo-1508747703725-719777637510?w=500'),
-  Product('Banan', 35,
-      'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=500'),
-  Product('Üzüm', 30,
-      'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=500'),
-  Product('Apelsin', 25,
-      'https://images.unsplash.com/photo-1547514701-42782101795e?w=500'),
-  Product('Garpyz', 40,
-      'https://images.unsplash.com/photo-1563114773-84221bd62daa?w=500'),
-];
-
-class SplashPage extends StatefulWidget {
-  const SplashPage({super.key});
-
-  @override
-  State<SplashPage> createState() => _SplashPageState();
-}
-
-class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
-    });
+  Future<void> saveProfile() async {
+    final p=await SharedPreferences.getInstance();
+    await p.setBool('dark',dark); await p.setString('name',customerName); await p.setString('phone',phone); await p.setString('address',address); await p.setString('region',region); await p.setString('district',district);
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.deepPurple,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            CircleAvatar(
-              radius: 55,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.shopping_cart,
-                  color: Colors.deepPurple, size: 65),
-            ),
-            SizedBox(height: 20),
-            Text('AZ MARKET',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold)),
-            Text('Söwda etmek aňsat!',
-                style: TextStyle(color: Colors.white70, fontSize: 16)),
-          ],
-        ),
-      ),
-    );
-  }
+  void toggleTheme(bool v) { setState(()=>dark=v); saveProfile(); playSound('click'); }
+  @override Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner:false, title:'Az Market',
+    theme: ThemeData(useMaterial3:true,colorScheme:ColorScheme.fromSeed(seedColor:purple, brightness:dark?Brightness.dark:Brightness.light),scaffoldBackgroundColor:dark?const Color(0xFF15131A):const Color(0xFFF7F5FA)),
+    home: StoreHome(app:this),
+  );
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class Product { final String name, image; final int price; const Product(this.name,this.image,this.price); }
+const products=[Product('Pomidor','pomidor',20),Product('Alma','alma',25),Product('Kartoşka','kartoshka',12),Product('Banan','banan',35),Product('Apelsin','apelsin',30),Product('Üzüm','uzum',40),Product('Hyýar','hyar',18),Product('Garpyz','garpyz',15)];
 
-  @override
-  State<HomePage> createState() => _HomePageState();
+class StoreHome extends StatefulWidget {
+ final AzMarketAppState app; const StoreHome({super.key,required this.app});
+ @override State<StoreHome> createState()=>_StoreHomeState();
+}
+class _StoreHomeState extends State<StoreHome> {
+ final Map<Product,int> cart={};
+ int get count=>cart.values.fold(0,(a,b)=>a+b);
+ int get total=>cart.entries.fold(0,(a,e)=>a+e.key.price*e.value);
+ void add(Product p){setState(()=>cart[p]=(cart[p]??0)+1);playSound('cart');}
+ void openCart(){playSound('click');Navigator.push(context,MaterialPageRoute(builder:(_)=>CartPage(cart:cart,total:total,onChanged:()=>setState((){}),app:widget.app,onClear:()=>setState(cart.clear))));}
+ @override Widget build(BuildContext context){final app=widget.app;return Scaffold(appBar:AppBar(title:const Text('Az Market',style:TextStyle(fontWeight:FontWeight.bold)),actions:[IconButton(onPressed:openCart,icon:Badge(label:Text('$count'),child:const Icon(Icons.shopping_cart_outlined))),PopupMenuButton<String>(icon:const Icon(Icons.menu),onSelected:(v){playSound('click');if(v=='settings')Navigator.push(context,MaterialPageRoute(builder:(_)=>SettingsPage(app:app)));if(v=='profile')Navigator.push(context,MaterialPageRoute(builder:(_)=>ProfilePage(app:app)));},itemBuilder:(_)=>const [PopupMenuItem(value:'settings',child:Text('Sazlamalar')),PopupMenuItem(value:'profile',child:Text('Maglumatlarym'))])]),body:Column(children:[Container(width:double.infinity,padding:const EdgeInsets.all(16),child:Column(crossAxisAlignment:CrossAxisAlignment.start,children:[Text('Hoş geldiňiz!',style:Theme.of(context).textTheme.titleLarge),Text('Täze we ter önümler',style:Theme.of(context).textTheme.bodyMedium)])),Expanded(child:GridView.builder(padding:const EdgeInsets.all(12),itemCount:products.length,gridDelegate:const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount:2,childAspectRatio:.73,crossAxisSpacing:12,mainAxisSpacing:12),itemBuilder:(context,i){final p=products[i];return Card(clipBehavior:Clip.antiAlias,child:Column(crossAxisAlignment:CrossAxisAlignment.stretch,children:[Expanded(child:Image.asset('assets/images/${p.image}.jpg',fit:BoxFit.cover,errorBuilder:(_,__,___)=>const Icon(Icons.image_not_supported,size:50))),Padding(padding:const EdgeInsets.fromLTRB(10,8,10,2),child:Text(p.name,style:const TextStyle(fontWeight:FontWeight.bold))),Padding(padding:const EdgeInsets.symmetric(horizontal:10),child:Text('${p.price} manat / kg')),Padding(padding:const EdgeInsets.all(8),child:FilledButton(onPressed:()=>add(p),child:const Text('Sebede goş')))]));}))]) );}
 }
 
-class _HomePageState extends State<HomePage> {
-  final List<Product> cart = [];
+class CartPage extends StatefulWidget {final Map<Product,int> cart;final int total;final VoidCallback onChanged,onClear;final AzMarketAppState app;const CartPage({super.key,required this.cart,required this.total,required this.onChanged,required this.onClear,required this.app});@override State<CartPage> createState()=>_CartPageState();}
+class _CartPageState extends State<CartPage>{@override Widget build(BuildContext context){final total=widget.cart.entries.fold(0,(a,e)=>a+e.key.price*e.value);return Scaffold(appBar:AppBar(title:const Text('Sebet')),body:widget.cart.isEmpty?const Center(child:Text('Sebet boş')):Column(children:[Expanded(child:ListView(children:widget.cart.entries.map((e)=>ListTile(title:Text(e.key.name),subtitle:Text('${e.key.price} manat × ${e.value}'),trailing:IconButton(icon:const Icon(Icons.delete_outline),onPressed:(){setState(()=>widget.cart.remove(e.key));widget.onChanged();playSound('click');}))).toList())),Padding(padding:const EdgeInsets.all(16),child:Column(children:[Text('Jemi: $total manat',style:Theme.of(context).textTheme.titleLarge),const SizedBox(height:10),SizedBox(width:double.infinity,child:FilledButton(onPressed:(){playSound('click');Navigator.push(context,MaterialPageRoute(builder:(_)=>DeliveryInfoPage(app:widget.app,onContinue:(){Navigator.push(context,MaterialPageRoute(builder:(_)=>CheckoutPage(app:widget.app,onDone:(){widget.onClear();})));})));},child:const Text('Sargyt et')))]))]));}}
 
-  void add(Product p) {
-    clickSound();
-    setState(() => cart.add(p));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${p.name} sebete goşuldy')),
-    );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('AZ MARKET',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              clickSound();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CartPage(cart: cart),
-                ),
-              ).then((_) => setState(() {}));
-            },
-            icon: Badge(
-              label: Text('${cart.length}'),
-              child: const Icon(Icons.shopping_cart),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(18),
-            color: Colors.deepPurple,
-            child: const Text(
-              'Hoş geldiňiz!\nTäze we ter önümler',
-              style: TextStyle(color: Colors.white, fontSize: 22),
-            ),
-          ),
-          Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: products.length,
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.72,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-              ),
-              itemBuilder: (context, i) {
-                final p = products[i];
-                return Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Image.network(
-                          p.image,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              const Icon(Icons.image_not_supported, size: 60),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Column(
-                          children: [
-                            Text(p.name,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17)),
-                            Text('${p.price} manat'),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () => add(p),
-                                child: const Text('Sebete goş'),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+class DeliveryInfoPage extends StatefulWidget {final AzMarketAppState app;final VoidCallback onContinue;const DeliveryInfoPage({super.key,required this.app,required this.onContinue});@override State<DeliveryInfoPage> createState()=>_DeliveryInfoPageState();}
+class _DeliveryInfoPageState extends State<DeliveryInfoPage>{late String region=widget.app.region;late final district=TextEditingController(text:widget.app.district);late final phone=TextEditingController(text:widget.app.phone);late final address=TextEditingController(text:widget.app.address);final regions=['Aşgabat','Ahal','Balkan','Daşoguz','Lebap','Mary'];@override void dispose(){district.dispose();phone.dispose();address.dispose();super.dispose();}@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Eltip beriş maglumatlary')),body:ListView(padding:const EdgeInsets.all(18),children:[const Text('Şäher / welaýat',style:TextStyle(fontWeight:FontWeight.bold)),const SizedBox(height:8),DropdownButtonFormField<String>(value:region,decoration:const InputDecoration(border:OutlineInputBorder()),items:regions.map((r)=>DropdownMenuItem(value:r,child:Text(r))).toList(),onChanged:(v)=>setState(()=>region=v??'Aşgabat')),const SizedBox(height:16),TextField(controller:district,decoration:const InputDecoration(labelText:'Etrap',border:OutlineInputBorder())),const SizedBox(height:16),TextField(controller:phone,keyboardType:TextInputType.phone,decoration:const InputDecoration(labelText:'Telefon belgisi',border:OutlineInputBorder())),const SizedBox(height:16),TextField(controller:address,decoration:const InputDecoration(labelText:'Salgy / köçe / öý',border:OutlineInputBorder())),const SizedBox(height:22),FilledButton(onPressed:()async{if(phone.text.trim().isEmpty||district.text.trim().isEmpty){ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Etrap we telefon belgisi giriziň')));return;}widget.app.region=region;widget.app.district=district.text;widget.app.phone=phone.text;widget.app.address=address.text;await widget.app.saveProfile();if(mounted){playSound('click');widget.onContinue();}},child:const Text('Dowam et'))]));}
 
-class CartPage extends StatefulWidget {
-  final List<Product> cart;
+class CheckoutPage extends StatefulWidget {final AzMarketAppState app;final VoidCallback onDone;const CheckoutPage({super.key,required this.app,required this.onDone});@override State<CheckoutPage> createState()=>_CheckoutPageState();}
+class _CheckoutPageState extends State<CheckoutPage>{String method='card';final name=TextEditingController();final number=TextEditingController();final expiry=TextEditingController();final cvv=TextEditingController();@override void dispose(){name.dispose();number.dispose();expiry.dispose();cvv.dispose();super.dispose();}void finish(){playSound('success');widget.onDone();Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder:(_)=>OrderSuccess(app:widget.app)),(r)=>r.isFirst);}
+@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Töleg usuly')),body:ListView(padding:const EdgeInsets.all(18),children:[RadioListTile<String>(value:'card',groupValue:method,title:const Text('Bank kartasy bilen töleg'),onChanged:(v)=>setState(()=>method=v!)),RadioListTile<String>(value:'cash',groupValue:method,title:const Text('Ýerinde töleg'),subtitle:const Text('Sargyt gelende nagt töleg'),onChanged:(v)=>setState(()=>method=v!)),if(method=='card')... [const Divider(),TextField(controller:name,decoration:const InputDecoration(labelText:'Kartyň eýesiniň ady')),TextField(controller:number,keyboardType:TextInputType.number,decoration:const InputDecoration(labelText:'Kart belgisi')),Row(children:[Expanded(child:TextField(controller:expiry,decoration:const InputDecoration(labelText:'MM/YY'))),const SizedBox(width:12),Expanded(child:TextField(controller:cvv,decoration:const InputDecoration(labelText:'CVV'),keyboardType:TextInputType.number))]),const SizedBox(height:8),const Text('Synag sahypasy: maglumatlar töleg üçin iberilmeýär we saklanmaýar.',style:TextStyle(fontSize:12))],const SizedBox(height:20),FilledButton(onPressed:finish,child:const Text('Tassyklamak'))]));}
 
-  const CartPage({super.key, required this.cart});
+class OrderSuccess extends StatelessWidget {final AzMarketAppState app;const OrderSuccess({super.key,required this.app});@override Widget build(BuildContext context)=>Scaffold(body:Center(child:Padding(padding:const EdgeInsets.all(24),child:Column(mainAxisSize:MainAxisSize.min,children:[const Icon(Icons.check_circle,color:Colors.green,size:76),const SizedBox(height:12),const Text('Sargydyňyz kabul edildi!',style:TextStyle(fontSize:22,fontWeight:FontWeight.bold)),const SizedBox(height:20),FilledButton(onPressed:()=>Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder:(_)=>StoreHome(app:app)),(r)=>false),child:const Text('Baş sahypa'))]))));}
 
-  @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  int get total =>
-      widget.cart.fold(0, (sum, p) => sum + p.price);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sebet')),
-      body: Column(
-        children: [
-          Expanded(
-            child: widget.cart.isEmpty
-                ? const Center(child: Text('Sebet boş'))
-                : ListView.builder(
-                    itemCount: widget.cart.length,
-                    itemBuilder: (_, i) {
-                      final p = widget.cart[i];
-                      return ListTile(
-                        title: Text(p.name),
-                        subtitle: Text('${p.price} manat'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            clickSound();
-                            setState(() => widget.cart.removeAt(i));
-                          },
-                        ),
-                      );
-                    },
-                  ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Text('Jemi: $total manat',
-                    style: const TextStyle(
-                        fontSize: 21, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: widget.cart.isEmpty
-                        ? null
-                        : () {
-                            clickSound();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => const AddressPage()),
-                            );
-                          },
-                    child: const Text('Dowam et'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AddressPage extends StatefulWidget {
-  const AddressPage({super.key});
-
-  @override
-  State<AddressPage> createState() => _AddressPageState();
-}
-
-class _AddressPageState extends State<AddressPage> {
-  final address = TextEditingController();
-  final note = TextEditingController();
-
-  String region = 'Aşgabat';
-
-  final regions = [
-    'Aşgabat',
-    'Ahal welaýaty',
-    'Balkan welaýaty',
-    'Daşoguz welaýaty',
-    'Lebap welaýaty',
-    'Mary welaýaty',
-  ];
-
-  @override
-  void dispose() {
-    address.dispose();
-    note.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Eltip bermek')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text('Welaýaty saýlaň'),
-          const SizedBox(height: 8),
-          DropdownButtonFormField<String>(
-            value: region,
-            decoration: const InputDecoration(
-                border: OutlineInputBorder()),
-            items: regions
-                .map((r) => DropdownMenuItem(
-                    value: r, child: Text(r)))
-                .toList(),
-            onChanged: (v) {
-              if (v != null) setState(() => region = v);
-            },
-          ),
-          const SizedBox(height: 18),
-          TextField(
-            controller: address,
-            decoration: const InputDecoration(
-              labelText: 'Salgyňyz',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 18),
-          TextField(
-            controller: note,
-            maxLines: 3,
-            decoration: const InputDecoration(
-              labelText: 'Goşmaça bellik (hökmany däl)',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              if (address.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Salgyňyzy ýazyň')),
-                );
-                return;
-              }
-              clickSound();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentPage(
-                    region: region,
-                    address: address.text,
-                    note: note.text,
-                  ),
-                ),
-              );
-            },
-            child: const Text('Tölege geç'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class PaymentPage extends StatefulWidget {
-  final String region;
-  final String address;
-  final String note;
-
-  const PaymentPage({
-    super.key,
-    required this.region,
-    required this.address,
-    required this.note,
-  });
-
-  @override
-  State<PaymentPage> createState() => _PaymentPageState();
-}
-
-class _PaymentPageState extends State<PaymentPage> {
-  final cardName = TextEditingController();
-  final cardNumber = TextEditingController();
-  final expiry = TextEditingController();
-  final cvv = TextEditingController();
-
-  @override
-  void dispose() {
-    cardName.dispose();
-    cardNumber.dispose();
-    expiry.dispose();
-    cvv.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Synag tölegi')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Icon(Icons.credit_card,
-              size: 70, color: Colors.deepPurple),
-          const SizedBox(height: 15),
-          const Text(
-            'Karta maglumatlary (diňe synag)',
-            style: TextStyle(fontSize: 20,
-                fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 18),
-          TextField(
-            controller: cardName,
-            decoration: const InputDecoration(
-              labelText: 'Karta eýesiniň ady',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 15),
-          TextField(
-            controller: cardNumber,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Karta belgisi',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 15),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: expiry,
-                  decoration: const InputDecoration(
-                    labelText: 'Möhleti',
-                    hintText: 'MM/YY',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: cvv,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'CVV',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'Bu diňe synag sahypasydyr. Islendik ýazylan maglumat kabul edilýär. Hakyky töleg geçirilmeýär we karta maglumatlary saklanmaýar.',
-            style: TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            height: 50,
-            child: ElevatedButton(
-              onPressed: () {
-                clickSound();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const SuccessPage(),
-                  ),
-                );
-              },
-              child: const Text('Synagy tamamla'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class SuccessPage extends StatelessWidget {
-  const SuccessPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(25),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.check_circle,
-                  size: 90, color: Colors.green),
-              const SizedBox(height: 20),
-              const Text(
-                'Synag üstünlikli tamamlandy!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 23, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  clickSound();
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const HomePage()),
-                    (route) => false,
-                  );
-                },
-                child: const Text('Baş sahypa'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+class SettingsPage extends StatelessWidget {final AzMarketAppState app;const SettingsPage({super.key,required this.app});@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Sazlamalar')),body:SwitchListTile(title:const Text('Garaňky / Ýagty görnüş'),subtitle:const Text('Gara ýa-da ak fon'),value:app.dark,onChanged:app.toggleTheme));}
+class ProfilePage extends StatefulWidget {final AzMarketAppState app;const ProfilePage({super.key,required this.app});@override State<ProfilePage> createState()=>_ProfilePageState();}
+class _ProfilePageState extends State<ProfilePage>{late final name=TextEditingController(text:widget.app.customerName);late final phone=TextEditingController(text:widget.app.phone);late final address=TextEditingController(text:widget.app.address);@override void dispose(){name.dispose();phone.dispose();address.dispose();super.dispose();}@override Widget build(BuildContext context)=>Scaffold(appBar:AppBar(title:const Text('Maglumatlarym')),body:ListView(padding:const EdgeInsets.all(18),children:[TextField(controller:name,decoration:const InputDecoration(labelText:'Adyňyz')),TextField(controller:phone,keyboardType:TextInputType.phone,decoration:const InputDecoration(labelText:'Telefon belgisi')),TextField(controller:address,decoration:const InputDecoration(labelText:'Salgy')),const SizedBox(height:20),FilledButton(onPressed:()async{widget.app.customerName=name.text;widget.app.phone=phone.text;widget.app.address=address.text;await widget.app.saveProfile();if(mounted){playSound('success');ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:Text('Maglumatlar saklandy')));}},child:const Text('Sakla'))]));}
