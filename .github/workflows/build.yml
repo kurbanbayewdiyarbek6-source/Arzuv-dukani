@@ -1,5 +1,5 @@
 
-name: Build Arzuv Dukan APK
+name: Build AZ Market APK
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ jobs:
 
       - name: Create Android project
         run: |
-          flutter create --platforms=android --project-name arzuv_dukan --org com.arzuvdukan temp_app
+          flutter create --platforms=android --project-name az_market --org com.azmarket temp_app
           cp -R temp_app/android ./android
 
       - name: Install packages
@@ -34,6 +34,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Arzuv-Dukan-APK
+          name: AZ-Market-APK
           path: build/app/outputs/flutter-apk/app-release.apk
           
