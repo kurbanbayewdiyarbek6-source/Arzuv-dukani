@@ -1,59 +1,240 @@
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MarketApp());
-
-const purple = Color(0xFF673AB7);
-const darkPurple = Color(0xFF32145F);
-
-class MarketApp extends StatefulWidget {
-  const MarketApp({super.key});
-
-  @override
-  State<MarketApp> createState() => _MarketAppState();
+void main() {
+  runApp(const AzMarketApp());
 }
 
-class _MarketAppState extends State<MarketApp> {
-  bool dark = false;
-  String language = 'Türkmençe';
+const purple = Color(0xFF673AB7);
+const orange = Color(0xFFFF9800);
+
+class Product {
+  final String name;
+  final String category;
+  final String emoji;
+  final double price;
+  final String unit;
+
+  const Product({
+    required this.name,
+    required this.category,
+    required this.emoji,
+    required this.price,
+    this.unit = 'kg',
+  });
+}
+
+const products = [
+  Product(name: 'Alma', category: 'Fruits', emoji: '🍎', price: 25),
+  Product(name: 'Banan', category: 'Fruits', emoji: '🍌', price: 32),
+  Product(name: 'Üzüm', category: 'Fruits', emoji: '🍇', price: 45),
+  Product(name: 'Apelsin', category: 'Fruits', emoji: '🍊', price: 30),
+  Product(name: 'Garpyz', category: 'Fruits', emoji: '🍉', price: 12),
+  Product(name: 'Pomidor', category: 'Vegetables', emoji: '🍅', price: 28),
+  Product(name: 'Hyýar', category: 'Vegetables', emoji: '🥒', price: 18),
+  Product(name: 'Kartoşka', category: 'Vegetables', emoji: '🥔', price: 15),
+  Product(name: 'Süýt', category: 'Drinks', emoji: '🥛', price: 22, unit: 'pcs'),
+  Product(name: 'Şire', category: 'Drinks', emoji: '🧃', price: 20, unit: 'pcs'),
+  Product(name: 'Suw', category: 'Drinks', emoji: '💧', price: 8, unit: 'pcs'),
+  Product(name: 'Şampun', category: 'Cleaning', emoji: '🧴', price: 65, unit: 'pcs'),
+  Product(name: 'Sabyn', category: 'Cleaning', emoji: '🧼', price: 15, unit: 'pcs'),
+  Product(name: 'Kir ýuwujy poroşok', category: 'Cleaning', emoji: '🫧', price: 85, unit: 'pcs'),
+  Product(name: 'Gap-gaç ýuwujy', category: 'Cleaning', emoji: '🧽', price: 35, unit: 'pcs'),
+  Product(name: 'Çörek', category: 'Food', emoji: '🍞', price: 12, unit: 'pcs'),
+  Product(name: 'Ýumurtga', category: 'Food', emoji: '🥚', price: 5, unit: 'pcs'),
+  Product(name: 'Peýnir', category: 'Food', emoji: '🧀', price: 90),
+];
+
+class AzMarketApp extends StatefulWidget {
+  const AzMarketApp({super.key});
+
+  @override
+  State<AzMarketApp> createState() => _AzMarketAppState();
+}
+
+class _AzMarketAppState extends State<AzMarketApp> {
+  bool darkMode = false;
+  String language = 'TM';
+  bool loggedIn = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: dark ? ThemeMode.dark : ThemeMode.light,
+      title: 'AZ MARKET',
       theme: ThemeData(
-        colorSchemeSeed: purple,
         useMaterial3: true,
-        brightness: Brightness.light,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: purple,
+          brightness: darkMode ? Brightness.dark : Brightness.light,
+        ),
+        scaffoldBackgroundColor:
+            darkMode ? const Color(0xFF171421) : const Color(0xFFF7F5FB),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: purple,
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
-      darkTheme: ThemeData(
-        colorSchemeSeed: purple,
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
-      home: LoginPage(
-        dark: dark,
-        language: language,
-        onTheme: (v) => setState(() => dark = v),
-        onLanguage: (v) => setState(() => language = v),
-      ),
+      home: loggedIn
+          ? MarketHome(
+              language: language,
+              onLanguage: (v) => setState(() => language = v),
+              darkMode: darkMode,
+              onTheme: () => setState(() => darkMode = !darkMode),
+              onLogout: () => setState(() => loggedIn = false),
+            )
+          : LoginPage(
+              language: language,
+              onLanguage: (v) => setState(() => language = v),
+              onLogin: () => setState(() => loggedIn = true),
+            ),
     );
   }
 }
 
+class Words {
+  static const data = {
+    'TM': {
+      'login': 'Hoş geldiňiz!',
+      'subtitle': 'AZ MARKET bilen söwda etmek aňsat',
+      'name': 'Adyňyz',
+      'password': 'Açar söz',
+      'enter': 'Giriş',
+      'guest': 'Myhman hökmünde gir',
+      'home': 'Baş sahypa',
+      'search': 'Haryt gözle...',
+      'categories': 'Bölümler',
+      'all': 'Hemmesi',
+      'fruits': 'Miwe',
+      'vegetables': 'Gök önümler',
+      'drinks': 'Içgiler',
+      'cleaning': 'Arassaçylyk',
+      'food': 'Iýmit',
+      'popular': 'Meşhur harytlar',
+      'cart': 'Sebet',
+      'favorites': 'Halanlarym',
+      'settings': 'Sazlamalar',
+      'add': 'Sebede goş',
+      'empty': 'Sebediňiz boş',
+      'total': 'Jemi',
+      'order': 'Sargyt et',
+      'checkout': 'Sargydy tassyklamak',
+      'success': 'Synag sargydyňyz kabul edildi!',
+      'language': 'Dil',
+      'theme': 'Garaňky görnüş',
+      'logout': 'Çykmak',
+      'close': 'Ýap',
+      'remove': 'Aýyrmak',
+      'quantity': 'Sany',
+      'delivery': 'Eltip bermek',
+      'address': 'Salgyňyz',
+      'phone': 'Telefon belgiňiz',
+      'payment': 'Töleg usuly',
+      'cash': 'Nagt töleg',
+      'card': 'Bank kartasy',
+      'continue': 'Dowam et',
+      'emptyFav': 'Halanýan haryt ýok',
+    },
+    'UZ': {
+      'login': 'Xush kelibsiz!',
+      'subtitle': 'AZ MARKET bilan xarid qilish oson',
+      'name': 'Ismingiz',
+      'password': 'Parol',
+      'enter': 'Kirish',
+      'guest': 'Mehmon sifatida kirish',
+      'home': 'Bosh sahifa',
+      'search': 'Mahsulot qidirish...',
+      'categories': 'Bo‘limlar',
+      'all': 'Hammasi',
+      'fruits': 'Mevalar',
+      'vegetables': 'Sabzavotlar',
+      'drinks': 'Ichimliklar',
+      'cleaning': 'Tozalik',
+      'food': 'Oziq-ovqat',
+      'popular': 'Mashhur mahsulotlar',
+      'cart': 'Savatcha',
+      'favorites': 'Sevimlilar',
+      'settings': 'Sozlamalar',
+      'add': 'Savatchaga qo‘shish',
+      'empty': 'Savatchangiz bo‘sh',
+      'total': 'Jami',
+      'order': 'Buyurtma berish',
+      'checkout': 'Buyurtmani tasdiqlash',
+      'success': 'Sinov buyurtmangiz qabul qilindi!',
+      'language': 'Til',
+      'theme': 'Tungi rejim',
+      'logout': 'Chiqish',
+      'close': 'Yopish',
+      'remove': 'O‘chirish',
+      'quantity': 'Soni',
+      'delivery': 'Yetkazib berish',
+      'address': 'Manzilingiz',
+      'phone': 'Telefon raqamingiz',
+      'payment': 'To‘lov usuli',
+      'cash': 'Naqd pul',
+      'card': 'Bank kartasi',
+      'continue': 'Davom etish',
+      'emptyFav': 'Sevimli mahsulotlar yo‘q',
+    },
+    'TR': {
+      'login': 'Hoş geldiniz!',
+      'subtitle': 'AZ MARKET ile alışveriş çok kolay',
+      'name': 'Adınız',
+      'password': 'Şifre',
+      'enter': 'Giriş yap',
+      'guest': 'Misafir olarak gir',
+      'home': 'Ana sayfa',
+      'search': 'Ürün ara...',
+      'categories': 'Kategoriler',
+      'all': 'Tümü',
+      'fruits': 'Meyveler',
+      'vegetables': 'Sebzeler',
+      'drinks': 'İçecekler',
+      'cleaning': 'Temizlik',
+      'food': 'Gıda',
+      'popular': 'Popüler ürünler',
+      'cart': 'Sepet',
+      'favorites': 'Favorilerim',
+      'settings': 'Ayarlar',
+      'add': 'Sepete ekle',
+      'empty': 'Sepetiniz boş',
+      'total': 'Toplam',
+      'order': 'Sipariş ver',
+      'checkout': 'Siparişi onayla',
+      'success': 'Deneme siparişiniz alındı!',
+      'language': 'Dil',
+      'theme': 'Karanlık mod',
+      'logout': 'Çıkış yap',
+      'close': 'Kapat',
+      'remove': 'Kaldır',
+      'quantity': 'Adet',
+      'delivery': 'Teslimat',
+      'address': 'Adresiniz',
+      'phone': 'Telefon numaranız',
+      'payment': 'Ödeme yöntemi',
+      'cash': 'Nakit',
+      'card': 'Banka kartı',
+      'continue': 'Devam et',
+      'emptyFav': 'Favori ürün yok',
+    },
+  };
+
+  static String get(String lang, String key) {
+    return data[lang]?[key] ?? data['TM']![key] ?? key;
+  }
+}
+
 class LoginPage extends StatefulWidget {
-  final bool dark;
   final String language;
-  final ValueChanged<bool> onTheme;
   final ValueChanged<String> onLanguage;
+  final VoidCallback onLogin;
 
   const LoginPage({
     super.key,
-    required this.dark,
     required this.language,
-    required this.onTheme,
     required this.onLanguage,
+    required this.onLogin,
   });
 
   @override
@@ -61,29 +242,16 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final name = TextEditingController();
-  final password = TextEditingController();
-  bool hidePassword = true;
+  final nameController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  String t(String key) => Words.get(widget.language, key);
 
   @override
   void dispose() {
-    name.dispose();
-    password.dispose();
+    nameController.dispose();
+    passwordController.dispose();
     super.dispose();
-  }
-
-  void enter() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MarketHome(
-          dark: widget.dark,
-          language: widget.language,
-          onTheme: widget.onTheme,
-          onLanguage: widget.onLanguage,
-        ),
-      ),
-    );
   }
 
   @override
@@ -93,7 +261,7 @@ class _LoginPageState extends State<LoginPage> {
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [darkPurple, purple, Color(0xFF9C65E8)],
+            colors: [Color(0xFF311B92), Color(0xFF673AB7), Color(0xFF9575CD)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -102,142 +270,142 @@ class _LoginPageState extends State<LoginPage> {
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 25),
-                  Container(
-                    width: 115,
-                    height: 115,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(35),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black26,
-                          blurRadius: 25,
-                          offset: Offset(0, 10),
-                        ),
-                      ],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: DropdownButton<String>(
+                        value: widget.language,
+                        dropdownColor: Colors.white,
+                        underline: const SizedBox(),
+                        style: const TextStyle(color: Colors.black),
+                        items: const [
+                          DropdownMenuItem(value: 'TM', child: Text('🇹🇲 Türkmen')),
+                          DropdownMenuItem(value: 'UZ', child: Text('🇺🇿 O‘zbek')),
+                          DropdownMenuItem(value: 'TR', child: Text('🇹🇷 Türkçe')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) widget.onLanguage(v);
+                        },
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.shopping_basket_rounded,
-                      color: purple,
-                      size: 72,
-                    ),
-                  ),
-                  const SizedBox(height: 22),
-                  const Text(
-                    'AZ MARKET',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 36,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 3,
-                    ),
-                  ),
-                  const Text(
-                    'ARZAN MARKET',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      letterSpacing: 7,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Hemmesi bir ýerde, elýeterli bahadan!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white70, fontSize: 15),
-                  ),
-                  const SizedBox(height: 45),
-                  Container(
-                    padding: const EdgeInsets.all(23),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Hoş geldiňiz!',
-                          style: TextStyle(
-                            color: darkPurple,
-                            fontSize: 25,
-                            fontWeight: FontWeight.bold,
+                    const SizedBox(height: 30),
+                    Container(
+                      width: 145,
+                      height: 145,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(38),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 25,
+                            offset: Offset(0, 10),
                           ),
-                        ),
-                        const SizedBox(height: 22),
-                        TextField(
-                          controller: name,
-                          decoration: InputDecoration(
-                            labelText: 'Adyňyz',
-                            prefixIcon: const Icon(Icons.person),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 15),
-                        TextField(
-                          controller: password,
-                          obscureText: hidePassword,
-                          decoration: InputDecoration(
-                            labelText: 'Açar sözi',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              onPressed: () => setState(
-                                () => hidePassword = !hidePassword,
-                              ),
-                              icon: Icon(
-                                hidePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 22),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 53,
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: purple,
-                            ),
-                            onPressed: enter,
-                            child: const Text(
-                              'GIRMEK',
-                              style: TextStyle(
-                                fontSize: 17,
+                        ],
+                      ),
+                      child: const Center(
+                        child: Text('🛒', style: TextStyle(fontSize: 76)),
+                      ),
+                    ),
+                    const SizedBox(height: 25),
+                    const Text(
+                      'AZ MARKET',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 38,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 3,
+                      ),
+                    ),
+                    const Text(
+                      'ARZAN MARKET',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 19,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 5,
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      t('subtitle'),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 35),
+                    Card(
+                      elevation: 12,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(22),
+                        child: Column(
+                          children: [
+                            Text(
+                              t('login'),
+                              style: const TextStyle(
+                                fontSize: 23,
                                 fontWeight: FontWeight.bold,
+                                color: purple,
                               ),
                             ),
-                          ),
+                            const SizedBox(height: 20),
+                            TextField(
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                labelText: t('name'),
+                                prefixIcon: const Icon(Icons.person),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            TextField(
+                              controller: passwordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: t('password'),
+                                prefixIcon: const Icon(Icons.lock),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: FilledButton(
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: purple,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                onPressed: widget.onLogin,
+                                child: Text(t('enter')),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: widget.onLogin,
+                              child: Text(t('guest')),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 10),
-                        TextButton(
-                          onPressed: enter,
-                          child: const Text(
-                            'Myhman hökmünde gir',
-                            style: TextStyle(color: purple),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 25),
-                  const Text(
-                    'AZ MARKET • ARZAN MARKET',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      letterSpacing: 2,
+                    const SizedBox(height: 25),
+                    const Text(
+                      'AZ MARKET • ARZAN MARKET',
+                      style: TextStyle(color: Colors.white60, fontSize: 12),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -248,17 +416,19 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class MarketHome extends StatefulWidget {
-  final bool dark;
   final String language;
-  final ValueChanged<bool> onTheme;
   final ValueChanged<String> onLanguage;
+  final bool darkMode;
+  final VoidCallback onTheme;
+  final VoidCallback onLogout;
 
   const MarketHome({
     super.key,
-    required this.dark,
     required this.language,
-    required this.onTheme,
     required this.onLanguage,
+    required this.darkMode,
+    required this.onTheme,
+    required this.onLogout,
   });
 
   @override
@@ -266,356 +436,297 @@ class MarketHome extends StatefulWidget {
 }
 
 class _MarketHomeState extends State<MarketHome> {
-  int selectedCategory = 0;
+  final Map<Product, int> cart = {};
+  final Set<Product> favorites = {};
+  final searchController = TextEditingController();
+
+  String selectedCategory = 'All';
+  String searchText = '';
   int page = 0;
-  String search = '';
 
-  final Map<String, int> cart = {};
+  String t(String key) => Words.get(widget.language, key);
 
-  final categories = [
-    'Hemmesi',
-    'Miwe',
-    'Gök önümler',
-    'Içgiler',
-    'Kir ýuwujy',
-    'Şampun',
-    'Arassalaýjy',
-  ];
+  String categoryName(String category) {
+    switch (category) {
+      case 'Fruits':
+        return t('fruits');
+      case 'Vegetables':
+        return t('vegetables');
+      case 'Drinks':
+        return t('drinks');
+      case 'Cleaning':
+        return t('cleaning');
+      case 'Food':
+        return t('food');
+      default:
+        return t('all');
+    }
+  }
 
-  final products = [
-    ['Alma', '20 manat', '🍎', 'Miwe'],
-    ['Banan', '35 manat', '🍌', 'Miwe'],
-    ['Üzüm', '25 manat', '🍇', 'Miwe'],
-    ['Apelsin', '30 manat', '🍊', 'Miwe'],
-    ['Garpyz', '15 manat', '🍉', 'Miwe'],
-    ['Pomidor', '18 manat', '🍅', 'Gök önümler'],
-    ['Kartoşka', '12 manat', '🥔', 'Gök önümler'],
-    ['Hyýar', '14 manat', '🥒', 'Gök önümler'],
-    ['Suw', '5 manat', '💧', 'Içgiler'],
-    ['Şire', '18 manat', '🧃', 'Içgiler'],
-    ['Kir ýuwujy poroşok', '45 manat', '🧺', 'Kir ýuwujy'],
-    ['Ariel', '55 manat', '🫧', 'Kir ýuwujy'],
-    ['Şampun', '35 manat', '🧴', 'Şampun'],
-    ['Sabyn', '10 manat', '🧼', 'Şampun'],
-    ['Gap-gaç ýuwujy', '30 manat', '🧽', 'Arassalaýjy'],
-    ['Pol arassalaýjy', '35 manat', '🧹', 'Arassalaýjy'],
-  ];
+  List<Product> get filteredProducts {
+    return products.where((p) {
+      final matchesCategory =
+          selectedCategory == 'All' || p.category == selectedCategory;
+      final matchesSearch =
+          p.name.toLowerCase().contains(searchText.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
 
-  int get count => cart.values.fold(0, (a, b) => a + b);
+  int get cartCount => cart.values.fold(0, (a, b) => a + b);
+
+  double get total =>
+      cart.entries.fold(0, (sum, item) => sum + item.key.price * item.value);
+
+  void add(Product product) {
+    setState(() => cart[product] = (cart[product] ?? 0) + 1);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${product.name} — ${t('add')}'),
+        duration: const Duration(milliseconds: 700),
+      ),
+    );
+  }
+
+  void changeQuantity(Product product, int amount) {
+    setState(() {
+      final next = (cart[product] ?? 0) + amount;
+      if (next <= 0) {
+        cart.remove(product);
+      } else {
+        cart[product] = next;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final shown = products.where((p) {
-      final categoryMatch = selectedCategory == 0 ||
-          p[3] == categories[selectedCategory];
-      final searchMatch =
-          p[0].toLowerCase().contains(search.toLowerCase());
-      return categoryMatch && searchMatch;
-    }).toList();
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'AZ MARKET',
-          style: TextStyle(fontWeight: FontWeight.w900),
+        title: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('AZ MARKET', style: TextStyle(fontWeight: FontWeight.w900)),
+            Text(
+              'ARZAN MARKET',
+              style: TextStyle(fontSize: 10, letterSpacing: 2),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            onPressed: () => setState(() => page = 1),
-            icon: Badge(
-              label: Text('$count'),
-              isLabelVisible: count > 0,
-              child: const Icon(Icons.shopping_cart_outlined),
-            ),
-          ),
-          IconButton(
+            tooltip: t('favorites'),
             onPressed: () => setState(() => page = 2),
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.favorite_border),
           ),
+          Stack(
+            children: [
+              IconButton(
+                tooltip: t('cart'),
+                onPressed: () => setState(() => page = 1),
+                icon: const Icon(Icons.shopping_cart_outlined),
+              ),
+              if (cartCount > 0)
+                Positioned(
+                  right: 5,
+                  top: 3,
+                  child: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: orange,
+                    child: Text(
+                      '$cartCount',
+                      style: const TextStyle(fontSize: 10, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 5),
         ],
       ),
-      body: page == 1
-          ? cartPage()
-          : page == 2
-              ? settingsPage()
-              : homePage(shown),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: page,
-        onDestinationSelected: (v) => setState(() => page = v),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.storefront),
-            label: 'Dukan',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.shopping_basket),
-            label: 'Sebet',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings),
-            label: 'Sazlamalar',
-          ),
-        ],
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [purple, Color(0xFF9575CD)]),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Icon(Icons.shopping_bag, color: Colors.white, size: 45),
+                  SizedBox(height: 8),
+                  Text(
+                    'AZ MARKET',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('ARZAN MARKET', style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: Text(t('home')),
+              onTap: () {
+                setState(() => page = 0);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.shopping_cart),
+              title: Text(t('cart')),
+              trailing: Text('$cartCount'),
+              onTap: () {
+                setState(() => page = 1);
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.favorite),
+              title: Text(t('favorites')),
+              onTap: () {
+                setState(() => page = 2);
+                Navigator.pop(context);
+              },
+            ),
+            const Divider(),
+            
+                ListTile(
+                  leading: const Icon(Icons.close),
+                  title: Text(t('close')),
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget homePage(List<List<String>> shown) {
-    return ListView(
-      padding: const EdgeInsets.all(15),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(23),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [darkPurple, purple],
-            ),
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'AZ MARKET',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 27,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Arzan bahalar, gowy harytlar!',
-                style: TextStyle(color: Colors.white, fontSize: 17),
-              ),
-              SizedBox(height: 12),
-              Icon(Icons.shopping_basket, color: Colors.white, size: 45),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        TextField(
-          onChanged: (v) => setState(() => search = v),
-          decoration: InputDecoration(
-            hintText: 'Haryt gözle...',
-            prefixIcon: const Icon(Icons.search),
-            filled: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(18),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        const Text(
-          'Kategoriýalar',
-          style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 43,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: categories.length,
-            itemBuilder: (context, i) => Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                label: Text(categories[i]),
-                selected: selectedCategory == i,
-                onSelected: (_) => setState(() => selectedCategory = i),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 15),
-        Text(
-          'Harytlar (${shown.length})',
-          style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: shown.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.78,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemBuilder: (context, i) {
-            final p = shown[i];
-            return Card(
-              clipBehavior: Clip.antiAlias,
+  void showCheckout() {
+    final addressController = TextEditingController();
+    final phoneController = TextEditingController();
+    String payment = 'cash';
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text(t('checkout')),
+            content: SingleChildScrollView(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      color: purple.withValues(alpha: 0.08),
-                      child: Center(
-                        child: Text(p[2], style: const TextStyle(fontSize: 65)),
+                  TextField(
+                    controller: addressController,
+                    decoration: InputDecoration(
+                      labelText: t('address'),
+                      prefixIcon: const Icon(Icons.location_on),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: t('phone'),
+                      prefixIcon: const Icon(Icons.phone),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      t('payment'),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      children: [
-                        Text(
-                          p[0],
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          p[1],
-                          style: const TextStyle(
-                            color: purple,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                cart[p[0]] = (cart[p[0]] ?? 0) + 1;
-                              });
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('${p[0]} sebede goşuldy'),
-                                  duration: const Duration(milliseconds: 700),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.add_shopping_cart),
-                            label: const Text('Sebede goş'),
-                          ),
-                        ),
-                      ],
+                  RadioListTile<String>(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(t('cash')),
+                    value: 'cash',
+                    groupValue: payment,
+                    onChanged: (v) {
+                      setDialogState(() => payment = v!);
+                    },
+                  ),
+                  RadioListTile<String>(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(t('card')),
+                    value: 'card',
+                    groupValue: payment,
+                    onChanged: (v) {
+                      setDialogState(() => payment = v!);
+                    },
+                  ),
+                  Text(
+                    '${t('total')}: ${total.toStringAsFixed(2)} TL',
+                    style: const TextStyle(
+                      color: purple,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget cartPage() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const Text(
-          'Siziň sebediňiz',
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        if (cart.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(40),
-            child: Center(child: Text('Sebediňiz boş')),
-          ),
-        ...cart.entries.map((e) {
-          final p = products.firstWhere((p) => p[0] == e.key);
-          return Card(
-            child: ListTile(
-              leading: Text(p[2], style: const TextStyle(fontSize: 30)),
-              title: Text(p[0]),
-              subtitle: Text(p[1]),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () => setState(() {
-                      if (e.value > 1) {
-                        cart[e.key] = e.value - 1;
-                      } else {
-                        cart.remove(e.key);
-                      }
-                    }),
-                    icon: const Icon(Icons.remove_circle_outline),
-                  ),
-                  Text('${e.value}'),
-                  IconButton(
-                    onPressed: () => setState(() {
-                      cart[e.key] = e.value + 1;
-                    }),
-                    icon: const Icon(Icons.add_circle_outline),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Bu diňe synag sargydydyr. Hakyky töleg geçirilmeýär.',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),
             ),
-          );
-        }),
-        if (cart.isNotEmpty)
-          FilledButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Sargyt kabul edildi!'),
-                  content: const Text(
-                    'Bu synag görnüşidir. Hakyky sargyt iberilmedi.',
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        setState(() {
-                          cart.clear();
-                          page = 0;
-                        });
-                      },
-                      child: const Text('Bolýar'),
-                    ),
-                  ],
-                ),
-              );
-            },
-            child: const Text('Sargyt et'),
-          ),
-      ],
-    );
-  }
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: Text(t('close')),
+              ),
+              FilledButton(
+                onPressed: () {
+                  if (addressController.text.trim().isEmpty ||
+                      phoneController.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(content: Text(t('address'))),
+                    );
+                    return;
+                  }
 
-  Widget settingsPage() {
-    return ListView(
-      children: [
-        const ListTile(
-          title: Text(
-            'Sazlamalar',
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
-          ),
-        ),
-        ListTile(
-          leading: const Icon(Icons.language),
-          title: const Text('Dil saýla'),
-          trailing: DropdownButton<String>(
-            value: widget.language,
-            items: const [
-              DropdownMenuItem(
-                value: 'Türkmençe',
-                child: Text('Türkmençe'),
-              ),
-              DropdownMenuItem(
-                value: 'O‘zbekcha',
-                child: Text('O‘zbekcha'),
-              ),
-              DropdownMenuItem(
-                value: 'Türkçe',
-                child: Text('Türkçe'),
+                  Navigator.pop(dialogContext);
+
+                  setState(() {
+                    cart.clear();
+                    page = 0;
+                  });
+
+                  ScaffoldMessenger.of(this.context).showSnackBar(
+                    SnackBar(content: Text(t('success'))),
+                  );
+                },
+                child: Text(t('order')),
               ),
             ],
-            onChanged: (v) {
-              if (v != null) widget.onLanguage(v);
-            },
-          ),
-        ),
-        SwitchListTile(
-          secondary: const Icon(Icons.dark_mode),
-      
+          );
+        },
+      ),
+    );
+  }
+}
+
+          
