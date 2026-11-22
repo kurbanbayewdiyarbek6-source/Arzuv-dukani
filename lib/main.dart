@@ -6,12 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() => runApp(const AzMarketApp());
 
 const purple = Color(0xFF673AB7);
-final AudioPlayer _soundPlayer = AudioPlayer();
+final AudioPlayer soundPlayer = AudioPlayer();
 
 Future<void> playSound(String file) async {
   try {
-    await _soundPlayer.stop();
-    await _soundPlayer.play(AssetSource('sounds/$file.wav'));
+    await soundPlayer.stop();
+    await soundPlayer.play(AssetSource('sounds/$file.wav'));
   } catch (_) {}
 }
 
@@ -40,9 +40,9 @@ String tr(String lang, String key) {
     'cardNumber': ['Kart belgisi', 'Номер карты', 'Kart numarası'],
     'expiry': ['Möhleti MM/YY', 'Срок MM/YY', 'Son kullanma MM/YY'],
     'cvv': ['CVV', 'CVV', 'CVV'],
-    'test': ['Synag sahypasy: maglumatlar töleg üçin iberilmeýär we saklanmaýar.',
-      'Тестовая страница: данные не отправляются и не сохраняются.',
-      'Deneme sayfası: bilgiler ödeme için gönderilmez ve kaydedilmez.'],
+    'test': ['Synag sahypasy: hakyky töleg geçirilmeýär. Karta maglumatlaryny girizmäň.',
+      'Тестовая страница: реальная оплата не производится. Не вводите данные карты.',
+      'Deneme sayfası: gerçek ödeme yapılmaz. Kart bilgilerinizi girmeyin.'],
     'confirm': ['Tassyklamak', 'Подтвердить', 'Onayla'],
     'success': ['Harydyňyz kabul edildi!', 'Ваш заказ принят!', 'Siparişiniz alındı!'],
     'soon': ['Az wagtda eltip beriler.', 'Скоро будет доставлено.', 'En kısa sürede teslim edilecek.'],
@@ -70,11 +70,13 @@ String tr(String lang, String key) {
 String phonePrefix(String value) {
   final cleaned = value.trim();
   if (cleaned.isEmpty) return '+993';
-  return cleaned.startsWith('+993') ? cleaned : '+993${cleaned.replaceAll(RegExp(r'^\+?'), '')}';
+  if (cleaned.startsWith('+993')) return cleaned;
+  return '+993${cleaned.replaceAll(RegExp(r'^\+?'), '')}';
 }
 
 class AzMarketApp extends StatefulWidget {
   const AzMarketApp({super.key});
+
   @override
   State<AzMarketApp> createState() => AzMarketAppState();
 }
@@ -132,26 +134,29 @@ class AzMarketAppState extends State<AzMarketApp> {
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    debugShowCheckedModeBanner: false,
-    title: 'Az Market',
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: purple,
-        brightness: dark ? Brightness.dark : Brightness.light,
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Az Market',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: purple,
+          brightness: dark ? Brightness.dark : Brightness.light,
+        ),
+        scaffoldBackgroundColor:
+            dark ? const Color(0xFF15131A) : const Color(0xFFF7F5FA),
       ),
-      scaffoldBackgroundColor:
-          dark ? const Color(0xFF15131A) : const Color(0xFFF7F5FA),
-    ),
-    home: StoreHome(app: this),
-  );
+      home: StoreHome(app: this),
+    );
+  }
 }
 
 class Product {
   final String name;
   final String emoji;
   final int price;
+
   const Product(this.name, this.emoji, this.price);
 }
 
@@ -168,6 +173,7 @@ const products = [
 
 class StoreHome extends StatefulWidget {
   final AzMarketAppState app;
+
   const StoreHome({super.key, required this.app});
 
   @override
@@ -179,7 +185,8 @@ class _StoreHomeState extends State<StoreHome> {
   String category = 'all';
 
   int get count => cart.values.fold(0, (a, b) => a + b);
-  int get total => cart.entries.fold(0, (a, e) => a + e.key.price * e.value);
+  int get total =>
+      cart.entries.fold(0, (a, e) => a + e.key.price * e.value);
 
   void add(Product p) {
     setState(() => cart[p] = (cart[p] ?? 0) + 1);
@@ -188,14 +195,17 @@ class _StoreHomeState extends State<StoreHome> {
 
   void openCart() {
     playSound('click');
-    Navigator.push(context, MaterialPageRoute(
-      builder: (_) => CartPage(
-        cart: cart,
-        app: widget.app,
-        onChanged: () => setState(() {}),
-        onClear: () => setState(() => cart.clear()),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CartPage(
+          cart: cart,
+          app: widget.app,
+          onChanged: () => setState(() {}),
+          onClear: () => setState(() => cart.clear()),
+        ),
       ),
-    ));
+    );
   }
 
   void selectCategory(String value) {
@@ -211,20 +221,36 @@ class _StoreHomeState extends State<StoreHome> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Az Market', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Az Market',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             onPressed: openCart,
-            icon: Badge(label: Text('$count'), child: const Icon(Icons.shopping_cart_outlined)),
+            icon: Badge(
+              label: Text('$count'),
+              child: const Icon(Icons.shopping_cart_outlined),
+            ),
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.menu),
             onSelected: (v) {
               playSound('click');
               if (v == 'settings') {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => SettingsPage(app: app)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => SettingsPage(app: app),
+                  ),
+                );
               } else if (v == 'profile') {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(app: app)));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProfilePage(app: app),
+                  ),
+                );
               } else if (v.startsWith('lang_')) {
                 app.changeLanguage(v.substring(5));
               } else {
@@ -233,18 +259,48 @@ class _StoreHomeState extends State<StoreHome> {
             },
             itemBuilder: (_) => [
               PopupMenuItem(value: 'all', child: Text(tr(lang, 'all'))),
-              PopupMenuItem(value: 'fruits', child: Text('🍎 ${tr(lang, 'fruits')}')),
-              PopupMenuItem(value: 'laundry', child: Text('🧺 ${tr(lang, 'laundry')}')),
-              PopupMenuItem(value: 'shampoo', child: Text('🧴 ${tr(lang, 'shampoo')}')),
-              PopupMenuItem(value: 'cleaning', child: Text('🧹 ${tr(lang, 'cleaning')}')),
-              PopupMenuItem(value: 'soap', child: Text('🧼 ${tr(lang, 'soap')}')),
+              PopupMenuItem(
+                value: 'fruits',
+                child: Text('🍎 ${tr(lang, 'fruits')}'),
+              ),
+              PopupMenuItem(
+                value: 'laundry',
+                child: Text('🧺 ${tr(lang, 'laundry')}'),
+              ),
+              PopupMenuItem(
+                value: 'shampoo',
+                child: Text('🧴 ${tr(lang, 'shampoo')}'),
+              ),
+              PopupMenuItem(
+                value: 'cleaning',
+                child: Text('🧹 ${tr(lang, 'cleaning')}'),
+              ),
+              PopupMenuItem(
+                value: 'soap',
+                child: Text('🧼 ${tr(lang, 'soap')}'),
+              ),
               const PopupMenuDivider(),
-              PopupMenuItem(value: 'settings', child: Text('⚙️ ${tr(lang, 'settings')}')),
-              PopupMenuItem(value: 'profile', child: Text('👤 ${tr(lang, 'profile')}')),
+              PopupMenuItem(
+                value: 'settings',
+                child: Text('⚙️ ${tr(lang, 'settings')}'),
+              ),
+              PopupMenuItem(
+                value: 'profile',
+                child: Text('👤 ${tr(lang, 'profile')}'),
+              ),
               const PopupMenuDivider(),
-              PopupMenuItem(value: 'lang_tm', child: const Text('🇹🇲 Türkmençe')),
-              PopupMenuItem(value: 'lang_ru', child: const Text('🇷🇺 Русский')),
-              PopupMenuItem(value: 'lang_tr', child: const Text('🇹🇷 Türkçe')),
+              const PopupMenuItem(
+                value: 'lang_tm',
+                child: Text('🇹🇲 Türkmençe'),
+              ),
+              const PopupMenuItem(
+                value: 'lang_ru',
+                child: Text('🇷🇺 Русский'),
+              ),
+              const PopupMenuItem(
+                value: 'lang_tr',
+                child: Text('🇹🇷 Türkçe'),
+              ),
             ],
           ),
         ],
@@ -257,14 +313,20 @@ class _StoreHomeState extends State<StoreHome> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(tr(lang, 'welcome'), style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  tr(lang, 'welcome'),
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 Text(tr(lang, 'fresh')),
                 const SizedBox(height: 8),
                 Text(
                   category == 'all' || category == 'fruits'
                       ? tr(lang, 'fruits')
                       : tr(lang, category),
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: purple),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: purple,
+                  ),
                 ),
               ],
             ),
@@ -275,7 +337,8 @@ class _StoreHomeState extends State<StoreHome> {
                 : GridView.builder(
                     padding: const EdgeInsets.all(12),
                     itemCount: products.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       childAspectRatio: .83,
                       crossAxisSpacing: 12,
@@ -289,10 +352,17 @@ class _StoreHomeState extends State<StoreHome> {
                           children: [
                             Expanded(
                               child: Center(
-                                child: Text(p.emoji, style: const TextStyle(fontSize: 65)),
+                                child: Text(
+                                  p.emoji,
+                                  style: const TextStyle(fontSize: 65),
+                                ),
                               ),
                             ),
-                            Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              p.name,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
                             Text('${p.price} manat / kg'),
                             Padding(
                               padding: const EdgeInsets.all(8),
@@ -338,7 +408,8 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     final lang = widget.app.lang;
-    final total = widget.cart.entries.fold(0, (a, e) => a + e.key.price * e.value);
+    final total =
+        widget.cart.entries.fold(0, (a, e) => a + e.key.price * e.value);
 
     return Scaffold(
       appBar: AppBar(title: Text(tr(lang, 'cart'))),
@@ -348,46 +419,62 @@ class _CartPageState extends State<CartPage> {
               children: [
                 Expanded(
                   child: ListView(
-                    children: widget.cart.entries.map((e) => ListTile(
-                      leading: Text(e.key.emoji, style: const TextStyle(fontSize: 30)),
-                      title: Text(e.key.name),
-                      subtitle: Text('${e.key.price} manat × ${e.value}'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () {
-                          setState(() => widget.cart.remove(e.key));
-                          widget.onChanged();
-                          playSound('click');
-                        },
-                      ),
-                    )).toList(),
+                    children: widget.cart.entries
+                        .map(
+                          (e) => ListTile(
+                            leading: Text(
+                              e.key.emoji,
+                              style: const TextStyle(fontSize: 30),
+                            ),
+                            title: Text(e.key.name),
+                            subtitle:
+                                Text('${e.key.price} manat × ${e.value}'),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.delete_outline),
+                              onPressed: () {
+                                setState(() => widget.cart.remove(e.key));
+                                widget.onChanged();
+                                playSound('click');
+                              },
+                            ),
+                          ),
+                        )
+                        .toList(),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      Text('${tr(lang, 'total')}: $total manat',
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text(
+                        '${tr(lang, 'total')}: $total manat',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () {
                             playSound('click');
-                            Navigator.push(context, MaterialPageRoute(
-                              builder: (_) => DeliveryInfoPage(
-                                app: widget.app,
-                                onContinue: () {
-                                  Navigator.push(context, MaterialPageRoute(
-                                    builder: (_) => CheckoutPage(
-                                      app: widget.app,
-                                      onDone: widget.onClear,
-                                    ),
-                                  ));
-                                },
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => DeliveryInfoPage(
+                                  app: widget.app,
+                                  onContinue: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => CheckoutPage(
+                                          app: widget.app,
+                                          onDone: widget.onClear,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
-                            ));
+                            );
                           },
                           child: Text(tr(lang, 'order')),
                         ),
@@ -405,7 +492,11 @@ class DeliveryInfoPage extends StatefulWidget {
   final AzMarketAppState app;
   final VoidCallback onContinue;
 
-  const DeliveryInfoPage({super.key, required this.app, required this.onContinue});
+  const DeliveryInfoPage({
+    super.key,
+    required this.app,
+    required this.onContinue,
+  });
 
   @override
   State<DeliveryInfoPage> createState() => _DeliveryInfoPageState();
@@ -414,10 +505,18 @@ class DeliveryInfoPage extends StatefulWidget {
 class _DeliveryInfoPageState extends State<DeliveryInfoPage> {
   late String region = widget.app.region;
   late final district = TextEditingController(text: widget.app.district);
-  late final phone = TextEditingController(text: phonePrefix(widget.app.phone));
+  late final phone =
+      TextEditingController(text: phonePrefix(widget.app.phone));
   late final address = TextEditingController(text: widget.app.address);
 
-  final regions = ['Aşgabat', 'Ahal', 'Balkan', 'Daşoguz', 'Lebap', 'Mary'];
+  final regions = [
+    'Aşgabat',
+    'Ahal',
+    'Balkan',
+    'Daşoguz',
+    'Lebap',
+    'Mary',
+  ];
 
   @override
   void dispose() {
@@ -436,12 +535,17 @@ class _DeliveryInfoPageState extends State<DeliveryInfoPage> {
       body: ListView(
         padding: const EdgeInsets.all(18),
         children: [
-          Text(tr(lang, 'region'), style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            tr(lang, 'region'),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: region,
             decoration: const InputDecoration(border: OutlineInputBorder()),
-            items: regions.map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+            items: regions
+                .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                .toList(),
             onChanged: (v) => setState(() => region = v ?? 'Aşgabat'),
           ),
           const SizedBox(height: 16),
@@ -462,9 +566,10 @@ class _DeliveryInfoPageState extends State<DeliveryInfoPage> {
             ),
             onChanged: (v) {
               if (!v.startsWith('+993')) {
+                final fixed = phonePrefix(v);
                 phone.value = TextEditingValue(
-                  text: phonePrefix(v),
-                  selection: TextSelection.collapsed(offset: phonePrefix(v).length),
+                  text: fixed,
+                  selection: TextSelection.collapsed(offset: fixed.length),
                 );
               }
             },
@@ -480,84 +585,7 @@ class _DeliveryInfoPageState extends State<DeliveryInfoPage> {
           const SizedBox(height: 22),
           FilledButton(
             onPressed: () async {
-              if (phone.text.trim().length <= 4 || district.text.trim().isEmpty) {
+              if (phone.text.trim().length <= 4 ||
+                  district.text.trim().isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(tr(lang, 'error'))),
-                );
-                return;
-              }
-              widget.app.region = region;
-              widget.app.district = district.text;
-              widget.app.phone = phonePrefix(phone.text);
-              widget.app.address = address.text;
-              await widget.app.saveProfile();
-              if (mounted) {
-                playSound('click');
-                widget.onContinue();
-              }
-            },
-            child: Text(tr(lang, 'continue')),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class CheckoutPage extends StatefulWidget {
-  final AzMarketAppState app;
-  final VoidCallback onDone;
-
-  const CheckoutPage({super.key, required this.app, required this.onDone});
-
-  @override
-  State<CheckoutPage> createState() => _CheckoutPageState();
-}
-
-class _CheckoutPageState extends State<CheckoutPage> {
-  String method = 'card';
-  final name = TextEditingController();
-  final number = TextEditingController();
-  final expiry = TextEditingController();
-  final cvv = TextEditingController();
-
-  @override
-  void dispose() {
-    name.dispose();
-    number.dispose();
-    expiry.dispose();
-    cvv.dispose();
-    super.dispose();
-  }
-
-  String get cardBrand {
-    final digits = number.text.replaceAll(RegExp(r'\D'), '');
-    if (digits.startsWith('51')) return 'Mastercard';
-    if (digits.startsWith('41')) return 'VISA';
-    if (digits.startsWith('21')) return 'Altyn Asyr';
-    return '';
-  }
-
-  void finish() {
-    playSound('success');
-    widget.onDone();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_) => OrderSuccess(app: widget.app)),
-      (r) => r.isFirst,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final lang = widget.app.lang;
-
-    return Scaffold(
-      appBar: AppBar(title: Text(tr(lang, 'payment'))),
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          RadioListTile<String>(
-            value: 'card',
-            groupValue: method,
-   
+                  SnackBar(content: Text(tr(lang, 'error')))
