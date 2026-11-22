@@ -1,9 +1,70 @@
 
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const AzMarketApp());
-}
+void main() => runApp(const AzMarketApp());
+
+const Map<String, Map<String, String>> words = {
+  'TM': {
+    'title': 'Az Market',
+    'cart': 'Sebet',
+    'empty': 'Sebediňiz boş',
+    'add': 'Sebede goş',
+    'language': 'Dil saýla',
+    'fruit': 'Miwe',
+    'laundry': 'Kir ýuwujy poroşok',
+    'hygiene': 'Şampun we sabyn',
+    'clean': 'Arassalaýjy serişdeler',
+    'payment': 'Töleg',
+    'card': 'Bank kartasy bilen töleg',
+    'cash': 'Ýerinde töleg',
+    'cardNumber': 'Karta belgisi (diňe synag üçin)',
+    'test': 'Bu diňe synag. Hakyky töleg ýok.',
+    'continue': 'Dowam et',
+    'back': 'Yza',
+    'added': 'Sebede goşuldy',
+    'choose': 'Töleg görnüşini saýlaň',
+  },
+  'UZ': {
+    'title': 'Az Market',
+    'cart': 'Savat',
+    'empty': 'Savatingiz bo‘sh',
+    'add': 'Savatga qo‘shish',
+    'language': 'Tilni tanlang',
+    'fruit': 'Mevalar',
+    'laundry': 'Kir yuvish kukuni',
+    'hygiene': 'Shampun va sovun',
+    'clean': 'Tozalash vositalari',
+    'payment': 'To‘lov',
+    'card': 'Bank kartasi orqali to‘lov',
+    'cash': 'Joyida to‘lash',
+    'cardNumber': 'Karta raqami (faqat sinov uchun)',
+    'test': 'Bu faqat sinov. Haqiqiy to‘lov yo‘q.',
+    'continue': 'Davom etish',
+    'back': 'Orqaga',
+    'added': 'Savatga qo‘shildi',
+    'choose': 'To‘lov turini tanlang',
+  },
+  'TR': {
+    'title': 'Az Market',
+    'cart': 'Sepet',
+    'empty': 'Sepetiniz boş',
+    'add': 'Sepete ekle',
+    'language': 'Dil seçin',
+    'fruit': 'Meyveler',
+    'laundry': 'Çamaşır deterjanı',
+    'hygiene': 'Şampuan ve sabun',
+    'clean': 'Temizlik ürünleri',
+    'payment': 'Ödeme',
+    'card': 'Banka kartı ile ödeme',
+    'cash': 'Kapıda ödeme',
+    'cardNumber': 'Kart numarası (sadece deneme)',
+    'test': 'Bu sadece denemedir. Gerçek ödeme yok.',
+    'continue': 'Devam et',
+    'back': 'Geri',
+    'added': 'Sepete eklendi',
+    'choose': 'Ödeme türünü seçin',
+  },
+};
 
 class Product {
   final String name;
@@ -11,45 +72,40 @@ class Product {
   final String image;
   final String emoji;
 
-  const Product({
-    required this.name,
-    required this.price,
-    required this.image,
-    required this.emoji,
-  });
+  const Product(this.name, this.price, this.image, this.emoji);
 }
 
 const categories = [
-  'Miwe',
-  'Kir ýuwujy poroşok',
-  'Şampun we sabyn',
-  'Arassalaýjy serişdeler',
+  'fruit',
+  'laundry',
+  'hygiene',
+  'clean',
 ];
 
 const products = [
   [
-    Product(name: 'Alma', price: '20 manat', image: 'assets/images/alma.jpg', emoji: '🍎'),
-    Product(name: 'Banan', price: '35 manat', image: 'assets/images/banan.jpg', emoji: '🍌'),
-    Product(name: 'Üzüm', price: '25 manat', image: 'assets/images/uzum.jpg', emoji: '🍇'),
-    Product(name: 'Pomidor', price: '18 manat', image: 'assets/images/pomidor.jpg', emoji: '🍅'),
-    Product(name: 'Apelsin', price: '30 manat', image: 'assets/images/apelsin.jpg', emoji: '🍊'),
-    Product(name: 'Garpyz', price: '15 manat', image: 'assets/images/garpyz.jpg', emoji: '🍉'),
+    Product('Alma', '20 manat', 'assets/images/alma.jpg', '🍎'),
+    Product('Banan', '35 manat', 'assets/images/banan.jpg', '🍌'),
+    Product('Üzüm', '25 manat', 'assets/images/uzum.jpg', '🍇'),
+    Product('Pomidor', '18 manat', 'assets/images/pomidor.jpg', '🍅'),
+    Product('Apelsin', '30 manat', 'assets/images/apelsin.jpg', '🍊'),
+    Product('Garpyz', '15 manat', 'assets/images/garpyz.jpg', '🍉'),
   ],
   [
-    Product(name: 'Kir ýuwujy poroşok', price: '45 manat', image: 'assets/images/poroshok.jpg', emoji: '🧺'),
-    Product(name: 'Ariel poroşok', price: '55 manat', image: 'assets/images/ariel.jpg', emoji: '🧼'),
-    Product(name: 'Suwuk ýuwujy serişde', price: '40 manat', image: 'assets/images/gel.jpg', emoji: '🫧'),
+    Product('Kir ýuwujy poroşok', '45 manat', 'assets/images/poroshok.jpg', '🧺'),
+    Product('Ariel poroşok', '55 manat', 'assets/images/ariel.jpg', '🧼'),
+    Product('Suwuk ýuwujy serişde', '40 manat', 'assets/images/gel.jpg', '🫧'),
   ],
   [
-    Product(name: 'Şampun', price: '35 manat', image: 'assets/images/shampun.jpg', emoji: '🧴'),
-    Product(name: 'Saç şampuny', price: '45 manat', image: 'assets/images/shampun2.jpg', emoji: '🧴'),
-    Product(name: 'Sabyn', price: '10 manat', image: 'assets/images/sabyn.jpg', emoji: '🧼'),
-    Product(name: 'Suwuk sabyn', price: '25 manat', image: 'assets/images/suwuk_sabyn.jpg', emoji: '🧴'),
+    Product('Şampun', '35 manat', 'assets/images/shampun.jpg', '🧴'),
+    Product('Saç şampuny', '45 manat', 'assets/images/shampun2.jpg', '🧴'),
+    Product('Sabyn', '10 manat', 'assets/images/sabyn.jpg', '🧼'),
+    Product('Suwuk sabyn', '25 manat', 'assets/images/suwuk_sabyn.jpg', '🧴'),
   ],
   [
-    Product(name: 'Gap-gaç ýuwujy', price: '30 manat', image: 'assets/images/gap_yuwujy.jpg', emoji: '🧽'),
-    Product(name: 'Pol arassalaýjy', price: '35 manat', image: 'assets/images/pol.jpg', emoji: '🧹'),
-    Product(name: 'Arassalaýjy serişde', price: '28 manat', image: 'assets/images/arassala.jpg', emoji: '🫧'),
+    Product('Gap-gaç ýuwujy', '30 manat', 'assets/images/gap_yuwujy.jpg', '🧽'),
+    Product('Pol arassalaýjy', '35 manat', 'assets/images/pol.jpg', '🧹'),
+    Product('Arassalaýjy serişde', '28 manat', 'assets/images/arassala.jpg', '🫧'),
   ],
 ];
 
@@ -78,9 +134,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController pageController = PageController();
+  String lang = 'TM';
   int selectedCategory = 0;
+  final PageController pageController = PageController();
   final Map<String, int> cart = {};
+
+  String tr(String key) => words[lang]![key] ?? key;
 
   void addToCart(Product product) {
     setState(() {
@@ -89,8 +148,8 @@ class _HomePageState extends State<HomePage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${product.name} sebede goşuldy'),
-        duration: const Duration(milliseconds: 900),
+        content: Text('${product.name} ${tr('added')}'),
+        duration: const Duration(milliseconds: 800),
       ),
     );
   }
@@ -101,17 +160,30 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Az Market',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          tr('title'),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
+          PopupMenuButton<String>(
+            tooltip: tr('language'),
+            icon: const Icon(Icons.language),
+            onSelected: (value) => setState(() => lang = value),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'TM', child: Text('Türkmençe')),
+              PopupMenuItem(value: 'UZ', child: Text('O‘zbekcha')),
+              PopupMenuItem(value: 'TR', child: Text('Türkçe')),
+            ],
+          ),
           IconButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => CartPage(cart: cart),
+                  builder: (_) => CartPage(
+                    cart: cart,
+                    lang: lang,
+                  ),
                 ),
               );
             },
@@ -128,17 +200,15 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 12),
           SizedBox(
             height: 48,
-            child: ListView.builder(
+            child: ListView(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final selected = selectedCategory == index;
+              children: List.generate(categories.length, (index) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: ChoiceChip(
-                    label: Text(categories[index]),
-                    selected: selected,
+                    label: Text(tr(categories[index])),
+                    selected: selectedCategory == index,
                     onSelected: (_) {
                       setState(() => selectedCategory = index);
                       pageController.animateToPage(
@@ -149,7 +219,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 );
-              },
+              }),
             ),
           ),
           const SizedBox(height: 10),
@@ -161,7 +231,7 @@ class _HomePageState extends State<HomePage> {
                 setState(() => selectedCategory = index);
               },
               itemBuilder: (context, categoryIndex) {
-                final categoryProducts = products[categoryIndex];
+                final list = products[categoryIndex];
 
                 return GridView.builder(
                   padding: const EdgeInsets.all(12),
@@ -172,13 +242,12 @@ class _HomePageState extends State<HomePage> {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
-                  itemCount: categoryProducts.length,
+                  itemCount: list.length,
                   itemBuilder: (context, index) {
-                    final product = categoryProducts[index];
+                    final product = list[index];
 
                     return Card(
                       clipBehavior: Clip.antiAlias,
-                      elevation: 2,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -186,14 +255,12 @@ class _HomePageState extends State<HomePage> {
                             child: Image.asset(
                               product.image,
                               fit: BoxFit.contain,
-                              errorBuilder: (_, __, ___) {
-                                return Center(
-                                  child: Text(
-                                    product.emoji,
-                                    style: const TextStyle(fontSize: 65),
-                                  ),
-                                );
-                              },
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Text(
+                                  product.emoji,
+                                  style: const TextStyle(fontSize: 65),
+                                ),
+                              ),
                             ),
                           ),
                           Padding(
@@ -246,24 +313,152 @@ class _HomePageState extends State<HomePage> {
 
 class CartPage extends StatelessWidget {
   final Map<String, int> cart;
+  final String lang;
 
-  const CartPage({super.key, required this.cart});
+  const CartPage({
+    super.key,
+    required this.cart,
+    required this.lang,
+  });
+
+  String tr(String key) => words[lang]![key] ?? key;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sebet')),
+      appBar: AppBar(title: Text(tr('cart'))),
       body: cart.isEmpty
-          ? const Center(child: Text('Sebediňiz boş'))
-          : ListView(
-              children: cart.entries.map((entry) {
-                return ListTile(
-                  leading: const Icon(Icons.shopping_basket),
-                  title: Text(entry.key),
-                  trailing: Text('x${entry.value}'),
-                );
-              }).toList(),
+          ? Center(child: Text(tr('empty')))
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView(
+                    children: cart.entries.map((entry) {
+                      return ListTile(
+                        leading: const Icon(Icons.shopping_basket),
+                        title: Text(entry.key),
+                        trailing: Text('x${entry.value}'),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CheckoutPage(lang: lang),
+                          ),
+                        );
+                      },
+                      child: Text(tr('continue')),
+                    ),
+                  ),
+                ),
+              ],
             ),
+    );
+  }
+}
+
+class CheckoutPage extends StatefulWidget {
+  final String lang;
+
+  const CheckoutPage({super.key, required this.lang});
+
+  @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  String payment = 'cash';
+  String cardNumber = '';
+
+  String tr(String key) => words[widget.lang]![key] ?? key;
+
+  String get cardBrand {
+    if (cardNumber.startsWith('51')) return 'Mastercard';
+    if (cardNumber.startsWith('41')) return 'Visa';
+    if (cardNumber.startsWith('21')) return 'Altyn Asyr';
+    return '';
+  }
+
+  IconData get cardIcon {
+    if (cardBrand == 'Mastercard') return Icons.credit_card;
+    if (cardBrand == 'Visa') return Icons.credit_card;
+    if (cardBrand == 'Altyn Asyr') return Icons.account_balance;
+    return Icons.credit_card_outlined;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(tr('payment'))),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            tr('choose'),
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          RadioListTile<String>(
+            value: 'cash',
+            groupValue: payment,
+            title: Text(tr('cash')),
+            onChanged: (value) => setState(() => payment = value!),
+          ),
+          RadioListTile<String>(
+            value: 'card',
+            groupValue: payment,
+            title: Text(tr('card')),
+            onChanged: (value) => setState(() => payment = value!),
+          ),
+          if (payment == 'card') ...[
+            const SizedBox(height: 16),
+            TextField(
+              keyboardType: TextInputType.number,
+              maxLength: 19,
+              onChanged: (value) {
+                setState(() => cardNumber = value.replaceAll(' ', ''));
+              },
+              decoration: InputDecoration(
+                labelText: tr('cardNumber'),
+                border: const OutlineInputBorder(),
+                prefixIcon: Icon(cardIcon),
+                suffixText: cardBrand.isEmpty ? null : cardBrand,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              tr('test'),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ],
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: () {
+              if (payment == 'card') {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(tr('test'))),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(tr('continue'))),
+                );
+              }
+            },
+            child: Text(tr('continue')),
+          ),
+        ],
+      ),
     );
   }
 }
