@@ -35,7 +35,6 @@ const translations = {
     'contacttext': 'Biz bilen habarlaşmak üçin maglumatlaryňyzy goýuň.',
     'added': 'Sebede goşuldy',
     'price': 'Bahasy',
-    'fruitname': 'Miwe',
   },
   'UZ': {
     'fruit': 'Mevalar',
@@ -66,7 +65,6 @@ const translations = {
     'contacttext': 'Biz bilan bog‘lanish uchun xabaringizni qoldiring.',
     'added': 'Savatga qo‘shildi',
     'price': 'Narxi',
-    'fruitname': 'Meva',
   },
   'TR': {
     'fruit': 'Meyveler',
@@ -97,7 +95,6 @@ const translations = {
     'contacttext': 'Bizimle iletişim kurmak için mesajınızı bırakın.',
     'added': 'Sepete eklendi',
     'price': 'Fiyat',
-    'fruitname': 'Meyve',
   },
 };
 
@@ -191,7 +188,7 @@ const productList = [
     names: {
       'TM': 'Kir ýuwujy poroşok',
       'UZ': 'Kir yuvish kukuni',
-      'TR': 'Çamaşır deterjanı'
+      'TR': 'Çamaşır deterjanı',
     },
     price: '45 manat',
     image: 'assets/images/poroshok.jpg',
@@ -203,7 +200,7 @@ const productList = [
     names: {
       'TM': 'Ariel poroşok',
       'UZ': 'Ariel kukuni',
-      'TR': 'Ariel deterjan'
+      'TR': 'Ariel deterjan',
     },
     price: '55 manat',
     image: 'assets/images/ariel.jpg',
@@ -231,7 +228,7 @@ const productList = [
     names: {
       'TM': 'Suwuk sabyn',
       'UZ': 'Suyuq sovun',
-      'TR': 'Sıvı sabun'
+      'TR': 'Sıvı sabun',
     },
     price: '25 manat',
     image: 'assets/images/suwuk_sabyn.jpg',
@@ -243,7 +240,7 @@ const productList = [
     names: {
       'TM': 'Gap-gaç ýuwujy',
       'UZ': 'Idish yuvish vositasi',
-      'TR': 'Bulaşık deterjanı'
+      'TR': 'Bulaşık deterjanı',
     },
     price: '30 manat',
     image: 'assets/images/gap_yuwujy.jpg',
@@ -255,7 +252,7 @@ const productList = [
     names: {
       'TM': 'Pol arassalaýjy',
       'UZ': 'Pol tozalagich',
-      'TR': 'Yüzey temizleyici'
+      'TR': 'Yüzey temizleyici',
     },
     price: '35 manat',
     image: 'assets/images/pol.jpg',
@@ -602,7 +599,8 @@ class _HomePageState extends State<HomePage> {
                                     content: Text(
                                       '${product.name(widget.lang)} ${widget.tr('added')}',
                                     ),
-                                    duration: const Duration(milliseconds: 800),
+                                    duration:
+                                        const Duration(milliseconds: 800),
                                   ),
                                 );
                                 setState(() {});
@@ -712,4 +710,6 @@ class CartPage extends StatelessWidget {
     final hasProducts = entries.isNotEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: T
+      appBar: AppBar(
+        title: Text(tr('cart')),
+     
